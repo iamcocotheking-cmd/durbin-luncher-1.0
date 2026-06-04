@@ -20,12 +20,20 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Set up Gradle 8.13
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.13'
+      - name: Clone Amethyst source
+        run: git clone --recursive https://github.com/AngelAuraMC/Amethyst-Android.git Amethyst-Android
+
+      - name: Apply local app_pojavlauncher changes if present
+        run: |
+          if [ -d "./app_pojavlauncher" ]; then
+            echo "Applying local app_pojavlauncher changes..."
+            rsync -av ./app_pojavlauncher/ ./Amethyst-Android/app_pojavlauncher/
+          else
+            echo "No local app_pojavlauncher folder found. Building clean Amethyst source."
+          fi
 
       - name: Regenerate language list if present
+        working-directory: Amethyst-Android
         run: |
           if [ -f "./scripts/languagelist_updater.sh" ]; then
             chmod +x ./scripts/languagelist_updater.sh
@@ -35,6 +43,7 @@ jobs:
           fi
 
       - name: Build debug APK
+        working-directory: Amethyst-Android
         run: |
           chmod +x ./gradlew
           ./gradlew :app_pojavlauncher:assembleDebug --stacktrace --console=plain
@@ -43,4 +52,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: DURBIN-Debug-APK
-          path: app_pojavlauncher/build/outputs/apk/debug/*.apk
+          path: Amethyst-Android/app_pojavlauncher/build/outputs/apk/debug/*.apk
