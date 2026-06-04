@@ -1,80 +1,46 @@
-# ─────────────────────────────────────────────────────────────────
-#  DURBIN Launcher – Milestone 1: Build Original Amethyst Debug APK
-#  Unchanged source, debug variant only.
-# ─────────────────────────────────────────────────────────────────
-name: DURBIN – Build Debug APK
+name: DURBIN Build Debug APK
 
 on:
-  workflow_dispatch:          # Run manually from Actions tab
-  push:
-    branches: [ main, master ]
+workflow_dispatch:
+push:
+branches:
+- main
 
 jobs:
-  build-debug:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 60
+build-debug:
+runs-on: ubuntu-latest
 
-    steps:
-      # ── 1. Checkout ──────────────────────────────────────────────
-      - name: Checkout source
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0        # needed so git describe works for version name
+steps:
+  - name: Checkout source
+    uses: actions/checkout@v4
 
-      # ── 2. Java 21 ───────────────────────────────────────────────
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
+  - name: Set up JDK 21
+    uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: '21'
 
-      # ── 3. Bundled JRE 8  ────────────────────────────────────────
-      #   The launcher unpacks this at first launch on-device for
-      #   older Minecraft versions (< 1.17).
-      - name: Download bundled JRE 8 (arm64 + arm32 + x86 + x86_64)
-        uses: dawidd6/action-download-artifact@v9
-        with:
-          workflow: build.yml
-          path: app_pojavlauncher/src/main/assets/components/jre
-          workflow_conclusion: completed
-          repo: AngelAuraMC/angelauramc-openjdk-build
-          branch: buildjre8
-          name: jre8-pojav
+  - name: Set up Gradle 8.13
+    uses: gradle/actions/setup-gradle@v4
+    with:
+      gradle-version: '8.13'
 
-      # ── 4. Gradle ────────────────────────────────────────────────
-      - name: Set up Gradle 8.13
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          validate-wrappers: false
-          gradle-version: "8.13"    # matches gradle-wrapper.properties
+  - name: Regenerate language list if present
+    run: |
+      if [ -f "./scripts/languagelist_updater.sh" ]; then
+        chmod +x ./scripts/languagelist_updater.sh
+        ./scripts/languagelist_updater.sh
+      else
+        echo "No language list updater script found. Skipping."
+      fi
 
-      # ── 5. Language list (regenerate from res/values-* dirs) ─────
-      - name: Regenerate language list
-        run: ./scripts/languagelist_updater.sh
+  - name: Build debug APK
+    run: |
+      chmod +x ./gradlew
+      ./gradlew :app_pojavlauncher:assembleDebug --stacktrace --console=plain
 
-      # ── 6. Build debug APK ───────────────────────────────────────
-      - name: Build debug APK
-        run: |
-          mkdir -p out
-          gradle :app_pojavlauncher:assembleDebug
-          cp app_pojavlauncher/build/outputs/apk/debug/app_pojavlauncher-debug.apk \
-             out/amethyst-debug.apk
-
-      # ── 7. Checksums ─────────────────────────────────────────────
-      - name: Generate checksums
-        run: |
-          cd out
-          md5sum amethyst-debug.apk > amethyst-debug.md5
-          sha256sum amethyst-debug.apk > amethyst-debug.sha256
-          echo "=== Build info ==="
-          echo "APK: $(ls -lh amethyst-debug.apk)"
-          cat amethyst-debug.sha256
-
-      # ── 8. Upload artifact ───────────────────────────────────────
-      - name: Upload debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: amethyst-debug-apk
-          path: out/
-          retention-days: 30
+  - name: Upload debug APK
+    uses: actions/upload-artifact@v4
+    with:
+      name: DURBIN-Debug-APK
+      path: app_pojavlauncher/build/outputs/apk/debug/*.apk
