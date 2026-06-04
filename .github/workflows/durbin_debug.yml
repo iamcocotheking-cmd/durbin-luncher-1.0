@@ -1,55 +1,55 @@
 name: DURBIN Build Debug APK
 
 on:
-workflow_dispatch:
-push:
-branches:
-- main
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-build-debug:
-runs-on: ubuntu-latest
+  build-debug:
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout source
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-  - name: Set up JDK 21
-    uses: actions/setup-java@v4
-    with:
-      distribution: temurin
-      java-version: '21'
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
 
-  - name: Clone Amethyst source
-    run: git clone --recursive https://github.com/AngelAuraMC/Amethyst-Android.git Amethyst-Android
+      - name: Clone Amethyst source
+        run: git clone --recursive https://github.com/AngelAuraMC/Amethyst-Android.git Amethyst-Android
 
-  - name: Apply local app_pojavlauncher changes if present
-    run: |
-      if [ -d "./app_pojavlauncher" ]; then
-        echo "Applying local app_pojavlauncher changes..."
-        rsync -av ./app_pojavlauncher/ ./Amethyst-Android/app_pojavlauncher/
-      else
-        echo "No local app_pojavlauncher folder found. Building clean Amethyst source."
-      fi
+      - name: Apply local app_pojavlauncher changes if present
+        run: |
+          if [ -d "./app_pojavlauncher" ]; then
+            echo "Applying local app_pojavlauncher changes..."
+            rsync -av ./app_pojavlauncher/ ./Amethyst-Android/app_pojavlauncher/
+          else
+            echo "No local app_pojavlauncher folder found. Building clean Amethyst source."
+          fi
 
-  - name: Regenerate language list if present
-    working-directory: Amethyst-Android
-    run: |
-      if [ -f "./scripts/languagelist_updater.sh" ]; then
-        chmod +x ./scripts/languagelist_updater.sh
-        ./scripts/languagelist_updater.sh
-      else
-        echo "No language list updater script found. Skipping."
-      fi
+      - name: Regenerate language list if present
+        working-directory: Amethyst-Android
+        run: |
+          if [ -f "./scripts/languagelist_updater.sh" ]; then
+            chmod +x ./scripts/languagelist_updater.sh
+            ./scripts/languagelist_updater.sh
+          else
+            echo "No language list updater script found. Skipping."
+          fi
 
-  - name: Build debug APK
-    working-directory: Amethyst-Android
-    run: |
-      chmod +x ./gradlew
-      ./gradlew :app_pojavlauncher:assembleDebug --stacktrace --console=plain
+      - name: Build debug APK
+        working-directory: Amethyst-Android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app_pojavlauncher:assembleDebug --stacktrace --console=plain
 
-  - name: Upload debug APK
-    uses: actions/upload-artifact@v4
-    with:
-      name: DURBIN-Debug-APK
-      path: Amethyst-Android/app_pojavlauncher/build/outputs/apk/debug/*.apk
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DURBIN-Debug-APK
+          path: Amethyst-Android/app_pojavlauncher/build/outputs/apk/debug/*.apk
