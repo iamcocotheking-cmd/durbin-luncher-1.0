@@ -1,0 +1,80 @@
+# ─────────────────────────────────────────────────────────────────
+#  DURBIN Launcher – Milestone 1: Build Original Amethyst Debug APK
+#  Unchanged source, debug variant only.
+# ─────────────────────────────────────────────────────────────────
+name: DURBIN – Build Debug APK
+
+on:
+  workflow_dispatch:          # Run manually from Actions tab
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-debug:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0        # needed so git describe works for version name
+
+      # ── 2. Java 21 ───────────────────────────────────────────────
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # ── 3. Bundled JRE 8  ────────────────────────────────────────
+      #   The launcher unpacks this at first launch on-device for
+      #   older Minecraft versions (< 1.17).
+      - name: Download bundled JRE 8 (arm64 + arm32 + x86 + x86_64)
+        uses: dawidd6/action-download-artifact@v9
+        with:
+          workflow: build.yml
+          path: app_pojavlauncher/src/main/assets/components/jre
+          workflow_conclusion: completed
+          repo: AngelAuraMC/angelauramc-openjdk-build
+          branch: buildjre8
+          name: jre8-pojav
+
+      # ── 4. Gradle ────────────────────────────────────────────────
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          validate-wrappers: false
+          gradle-version: "8.13"    # matches gradle-wrapper.properties
+
+      # ── 5. Language list (regenerate from res/values-* dirs) ─────
+      - name: Regenerate language list
+        run: ./scripts/languagelist_updater.sh
+
+      # ── 6. Build debug APK ───────────────────────────────────────
+      - name: Build debug APK
+        run: |
+          mkdir -p out
+          gradle :app_pojavlauncher:assembleDebug
+          cp app_pojavlauncher/build/outputs/apk/debug/app_pojavlauncher-debug.apk \
+             out/amethyst-debug.apk
+
+      # ── 7. Checksums ─────────────────────────────────────────────
+      - name: Generate checksums
+        run: |
+          cd out
+          md5sum amethyst-debug.apk > amethyst-debug.md5
+          sha256sum amethyst-debug.apk > amethyst-debug.sha256
+          echo "=== Build info ==="
+          echo "APK: $(ls -lh amethyst-debug.apk)"
+          cat amethyst-debug.sha256
+
+      # ── 8. Upload artifact ───────────────────────────────────────
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: amethyst-debug-apk
+          path: out/
+          retention-days: 30
