@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_app"
+    android:paddingHorizontal="@dimen/fragment_padding_medium">
+
+    <ImageView
+        android:id="@+id/durbin_logo"
+        android:layout_width="@dimen/_72sdp"
+        android:layout_height="@dimen/_72sdp"
+        android:layout_marginTop="@dimen/_32sdp"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/durbin_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/durbin_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_medium"
+        android:letterSpacing="0.12"
+        android:text="@string/durbin_welcome_title"
+        android:textColor="@color/durbin_orange"
+        android:textSize="@dimen/_14ssp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/durbin_logo" />
+
+    <TextView
+        android:id="@+id/durbin_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_tiny"
+        android:gravity="center"
+        android:text="@string/durbin_auth_subtitle"
+        android:textColor="@color/secondary_text"
+        android:textSize="@dimen/_10ssp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/durbin_title" />
+
+    <View
+        android:id="@+id/login_menu"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_200sdp"
+        android:layout_marginTop="@dimen/padding_heavy"
+        android:background="@drawable/background_card"
+        android:translationZ="-1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/durbin_subtitle"
+        app:layout_constraintVertical_bias="0.35" />
+
+    <com.kdt.mcgui.MineButton
+        android:id="@+id/button_microsoft_authentication"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/_25sdp"
+        android:layout_marginBottom="@dimen/_20sdp"
+        android:text="@string/durbin_microsoft_account"
+        android:textSize="@dimen/_12ssp"
+        app:layout_constraintBottom_toTopOf="@+id/button_local_authentication"
+        app:layout_constraintEnd_toEndOf="@+id/login_menu"
+        app:layout_constraintStart_toStartOf="@+id/login_menu"
+        app:layout_constraintTop_toTopOf="@id/login_menu"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <com.kdt.mcgui.MineButton
+        android:id="@+id/button_local_authentication"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/_25sdp"
+        android:text="@string/durbin_local_account_title"
+        android:textSize="@dimen/_12ssp"
+        app:layout_constraintBottom_toBottomOf="@id/login_menu"
+        app:layout_constraintEnd_toEndOf="@+id/login_menu"
+        app:layout_constraintStart_toStartOf="@+id/login_menu"
+        app:layout_constraintTop_toBottomOf="@+id/button_microsoft_authentication" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

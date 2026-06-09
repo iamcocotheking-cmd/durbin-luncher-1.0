@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DURBIN Launcher</string>
+    <string name="durbin_welcome_title">WELCOME TO DURBIN</string>
+    <string name="durbin_auth_subtitle">Choose how you want to sign in</string>
+    <string name="durbin_local_account_title">Local Account</string>
+    <string name="durbin_local_account_hint">Offline play and servers that allow offline accounts only.</string>
+    <string name="durbin_local_username_hint">Username (3–16 characters)</string>
+    <string name="durbin_local_default_username">DURBIN_Player</string>
+    <string name="durbin_microsoft_account">Microsoft Account</string>
+    <string name="durbin_continue_local">Continue with Local Account</string>
+</resources>
